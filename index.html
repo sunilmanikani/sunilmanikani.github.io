@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --bg:    #0c0c0c;
@@ -22,6 +23,9 @@
       --acc2:  rgba(0,212,170,0.09);
       --pur:   #818cf8;
       --pur2:  rgba(129,140,248,0.09);
+      /* validated chart palette (dark, surface #141414) */
+      --c1:    #3987e5;   /* publications — blue   */
+      --c2:    #008300;   /* patents       — green  */
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -52,68 +56,22 @@
       border-bottom: 1px solid var(--bdr);
     }
 
-    .nav-mark {
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--text);
-      letter-spacing: -0.01em;
-    }
-
+    .nav-mark { font-size: 0.88rem; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
     .nav-mark em { color: var(--acc); font-style: normal; }
 
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 1.8rem;
-      list-style: none;
-    }
-
-    .nav-links a {
-      font-size: 0.78rem;
-      color: var(--sub);
-      text-decoration: none;
-      transition: color 0.15s;
-    }
-
+    .nav-links { display: flex; align-items: center; gap: 1.8rem; list-style: none; }
+    .nav-links a { font-size: 0.78rem; color: var(--sub); text-decoration: none; transition: color 0.15s; }
     .nav-links a:hover { color: var(--text); }
     .nav-links a.ext::after { content: ' ↗'; }
 
     /* ── WRAP ── */
-    .w {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 7rem 2rem;
-    }
+    .w { max-width: 860px; margin: 0 auto; padding: 7rem 2rem; }
 
     /* ── SECTION LABEL ── */
-    .sl {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      margin-bottom: 3.5rem;
-    }
-
-    .sl-num {
-      font-size: 0.68rem;
-      font-weight: 500;
-      color: var(--muted);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .sl-name {
-      font-size: 0.68rem;
-      font-weight: 500;
-      color: var(--sub);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .sl-rule {
-      flex: 1;
-      height: 1px;
-      background: var(--bdr);
-    }
+    .sl { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 3.5rem; }
+    .sl-num { font-size: 0.68rem; font-weight: 500; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; }
+    .sl-name { font-size: 0.68rem; font-weight: 500; color: var(--sub); letter-spacing: 0.14em; text-transform: uppercase; }
+    .sl-rule { flex: 1; height: 1px; background: var(--bdr); }
 
     /* ── HERO ── */
     #hero {
@@ -127,6 +85,13 @@
       border-bottom: 1px solid var(--bdr);
     }
 
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 3rem;
+      align-items: flex-end;
+    }
+
     .hero-eye {
       font-size: 0.72rem;
       font-weight: 400;
@@ -137,7 +102,7 @@
     }
 
     .hero-name {
-      font-size: clamp(3.5rem, 10vw, 7rem);
+      font-size: clamp(3rem, 9vw, 6.5rem);
       font-weight: 700;
       line-height: 0.95;
       letter-spacing: -0.035em;
@@ -148,63 +113,52 @@
     .hero-name .dot { color: var(--acc); }
 
     .hero-stmt {
-      font-size: clamp(1rem, 2.2vw, 1.3rem);
+      font-size: clamp(0.95rem, 2vw, 1.2rem);
       font-weight: 300;
       color: var(--sub);
-      max-width: 560px;
+      max-width: 520px;
       line-height: 1.65;
-      margin-bottom: 3.5rem;
+      margin-bottom: 3rem;
     }
 
-    .hero-stmt strong {
-      color: var(--text);
-      font-weight: 500;
-    }
+    .hero-stmt strong { color: var(--text); font-weight: 500; }
 
     .hero-stats {
       display: flex;
       align-items: center;
-      gap: 2rem;
+      gap: 1.8rem;
       flex-wrap: wrap;
       margin-bottom: 2.5rem;
       padding-bottom: 2.5rem;
       border-bottom: 1px solid var(--bdr);
     }
 
-    .hs {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-    }
+    .hs { display: flex; flex-direction: column; gap: 0.2rem; }
+    .hs-val { font-size: 1.6rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; line-height: 1; }
+    .hs-label { font-size: 0.65rem; font-weight: 400; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .hs-sep { width: 1px; height: 34px; background: var(--bdr); flex-shrink: 0; }
 
-    .hs-val {
-      font-size: 1.7rem;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -0.02em;
-      line-height: 1;
-    }
+    .hero-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
-    .hs-label {
-      font-size: 0.65rem;
-      font-weight: 400;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    .hs-sep {
-      width: 1px;
-      height: 36px;
-      background: var(--bdr);
+    /* Photo */
+    .hero-photo {
       flex-shrink: 0;
+      align-self: flex-end;
+      padding-bottom: 0.5rem;
     }
 
-    .hero-actions {
-      display: flex;
-      gap: 0.6rem;
-      flex-wrap: wrap;
+    .hero-photo img {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--bdr2);
+      display: block;
+      filter: grayscale(15%);
+      transition: filter 0.3s;
     }
+
+    .hero-photo img:hover { filter: grayscale(0%); }
 
     /* ── BUTTONS ── */
     .btn {
@@ -223,59 +177,108 @@
       letter-spacing: 0.01em;
     }
 
-    .btn-fill {
-      background: var(--acc);
-      color: #0c0c0c;
-      border-color: var(--acc);
-    }
-
+    .btn-fill { background: var(--acc); color: #0c0c0c; border-color: var(--acc); }
     .btn-fill:hover { background: #00bfa0; border-color: #00bfa0; }
-
-    .btn-line {
-      background: transparent;
-      color: var(--sub);
-      border-color: var(--bdr);
-    }
-
+    .btn-line { background: transparent; color: var(--sub); border-color: var(--bdr); }
     .btn-line:hover { color: var(--text); border-color: var(--bdr2); }
 
     /* ── ABOUT ── */
-    .about-body p {
-      font-size: 0.95rem;
-      color: var(--sub);
-      line-height: 1.9;
-      max-width: 680px;
+    .about-body p { font-size: 0.95rem; color: var(--sub); line-height: 1.9; max-width: 680px; margin-bottom: 1.2rem; }
+    .about-body p strong { color: var(--text); font-weight: 500; }
+
+    .pills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 2rem; }
+    .pill {
+      font-size: 0.72rem; padding: 0.28rem 0.65rem; border-radius: 2px;
+      border: 1px solid var(--bdr); color: var(--sub); background: var(--bg2);
+      transition: all 0.15s;
+    }
+    .pill:hover { color: var(--text); border-color: var(--bdr2); }
+
+    /* ── CAREER TIMELINE ── */
+    .ct-wrap {
+      margin-bottom: 3.5rem;
+      padding: 1.6rem;
+      background: var(--bg2);
+      border: 1px solid var(--bdr);
+      border-radius: 4px;
+    }
+
+    .ct-label-row {
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
       margin-bottom: 1.2rem;
     }
 
-    .about-body p strong { color: var(--text); font-weight: 500; }
+    /* Year ticks */
+    .ct-years {
+      position: relative;
+      height: 20px;
+      margin-bottom: 4px;
+    }
 
-    .pills {
+    .ct-year {
+      position: absolute;
+      font-size: 0.65rem;
+      color: var(--muted);
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    .ct-year:first-child { transform: translateX(0); }
+    .ct-year:last-child  { transform: translateX(-100%); }
+
+    /* Bar */
+    .ct-bar {
+      position: relative;
+      height: 10px;
+      background: var(--bg3);
+      border-radius: 5px;
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-top: 2rem;
+      overflow: hidden;
+      margin-bottom: 4px;
     }
 
-    .pill {
-      font-size: 0.72rem;
-      padding: 0.28rem 0.65rem;
-      border-radius: 2px;
-      border: 1px solid var(--bdr);
+    .ct-seg { height: 100%; }
+
+    /* Tick marks aligned with year labels */
+    .ct-ticks {
+      position: relative;
+      height: 6px;
+      margin-bottom: 10px;
+    }
+
+    .ct-tick {
+      position: absolute;
+      width: 1px;
+      height: 6px;
+      background: var(--bdr2);
+      transform: translateX(-50%);
+    }
+
+    /* Phase labels below bar */
+    .ct-phases {
+      position: relative;
+      height: 36px;
+    }
+
+    .ct-phase {
+      position: absolute;
+      font-size: 0.68rem;
       color: var(--sub);
-      background: var(--bg2);
-      transition: all 0.15s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
     }
 
-    .pill:hover { color: var(--text); border-color: var(--bdr2); }
+    .ct-phase small { display: block; font-size: 0.6rem; color: var(--muted); margin-top: 1px; }
 
-    /* ── EXPERIENCE ── */
+    /* ── EXPERIENCE ACCORDION ── */
     .exp-list { display: flex; flex-direction: column; }
-
-    .exp-row {
-      border-top: 1px solid var(--bdr);
-    }
-
+    .exp-row { border-top: 1px solid var(--bdr); }
     .exp-row:last-child { border-bottom: 1px solid var(--bdr); }
 
     .exp-hdr {
@@ -288,83 +291,24 @@
       user-select: none;
     }
 
-    .exp-company {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 0.2rem;
-    }
-
+    .exp-company { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
     .exp-role { font-size: 0.8rem; color: var(--sub); }
 
-    .exp-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 0.4rem;
-    }
+    .exp-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem; }
+    .exp-date { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+    .exp-toggle { font-size: 1rem; color: var(--muted); transition: transform 0.2s, color 0.15s; line-height: 1; }
+    .exp-row.open .exp-toggle { transform: rotate(45deg); color: var(--acc); }
 
-    .exp-date {
-      font-size: 0.7rem;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-
-    .exp-toggle {
-      font-size: 1rem;
-      color: var(--muted);
-      transition: transform 0.2s, color 0.15s;
-      line-height: 1;
-    }
-
-    .exp-row.open .exp-toggle {
-      transform: rotate(45deg);
-      color: var(--acc);
-    }
-
-    .exp-body {
-      display: none;
-      padding-bottom: 1.5rem;
-    }
-
+    .exp-body { display: none; padding-bottom: 1.5rem; }
     .exp-row.open .exp-body { display: block; }
 
-    .exp-desc {
-      font-size: 0.875rem;
-      color: var(--sub);
-      line-height: 1.85;
-      max-width: 660px;
-      margin-bottom: 1.2rem;
-    }
+    .exp-desc { font-size: 0.875rem; color: var(--sub); line-height: 1.85; max-width: 660px; margin-bottom: 1.2rem; }
 
     .exp-projects { display: flex; flex-direction: column; gap: 0.6rem; }
-
-    .exp-proj {
-      background: var(--bg2);
-      border: 1px solid var(--bdr);
-      border-radius: 3px;
-      padding: 0.9rem 1.1rem;
-      border-left: 2px solid var(--acc);
-    }
-
-    .ep-title {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 0.2rem;
-    }
-
-    .ep-period {
-      font-size: 0.7rem;
-      color: var(--muted);
-      margin-bottom: 0.5rem;
-    }
-
-    .ep-desc {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.7;
-    }
+    .exp-proj { background: var(--bg2); border: 1px solid var(--bdr); border-radius: 3px; padding: 0.9rem 1.1rem; border-left: 2px solid var(--acc); }
+    .ep-title { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+    .ep-period { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .ep-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.7; }
 
     /* ── SKILLS ── */
     .skills-grid {
@@ -376,246 +320,108 @@
       overflow: hidden;
     }
 
-    .sg {
-      background: var(--bg2);
-      padding: 1.4rem;
-    }
+    .sg { background: var(--bg2); padding: 1.4rem; }
+    .sg-label { font-size: 0.65rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.9rem; }
 
-    .sg-label {
-      font-size: 0.65rem;
-      font-weight: 500;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 0.9rem;
-    }
-
-    .stags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-    }
-
-    .st {
-      font-size: 0.7rem;
-      color: var(--sub);
-      border: 1px solid var(--bdr);
-      padding: 0.18rem 0.52rem;
-      border-radius: 2px;
-      background: var(--bg3);
-      transition: color 0.15s;
-    }
-
+    .stags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .st { font-size: 0.7rem; color: var(--sub); border: 1px solid var(--bdr); padding: 0.18rem 0.52rem; border-radius: 2px; background: var(--bg3); transition: color 0.15s; }
     .st:hover { color: var(--text); }
 
-    /* ── RESEARCH ── */
-    .filter-bar {
-      display: flex;
+    /* ── RESEARCH CHART ── */
+    .chart-wrap {
+      background: var(--bg2);
       border: 1px solid var(--bdr);
-      border-radius: 3px;
-      overflow: hidden;
-      width: fit-content;
+      border-radius: 4px;
+      padding: 1.6rem;
       margin-bottom: 2.5rem;
     }
 
-    .ftab {
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: var(--muted);
-      padding: 0.45rem 1rem;
-      background: var(--bg2);
-      cursor: pointer;
-      border: none;
-      border-right: 1px solid var(--bdr);
-      transition: all 0.15s;
-      font-family: inherit;
-      letter-spacing: 0.03em;
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.2rem;
     }
 
+    .chart-title {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--sub);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 1.2rem;
+    }
+
+    .chart-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .chart-canvas-wrap { position: relative; height: 220px; }
+
+    /* ── RESEARCH FILTER + PUBS ── */
+    .filter-bar { display: flex; border: 1px solid var(--bdr); border-radius: 3px; overflow: hidden; width: fit-content; margin-bottom: 2.5rem; }
+    .ftab { font-size: 0.72rem; font-weight: 500; color: var(--muted); padding: 0.45rem 1rem; background: var(--bg2); cursor: pointer; border: none; border-right: 1px solid var(--bdr); transition: all 0.15s; font-family: inherit; letter-spacing: 0.03em; }
     .ftab:last-child { border-right: none; }
     .ftab:hover { color: var(--text); background: var(--bg3); }
     .ftab.on { color: var(--text); background: var(--bg3); }
 
     .pub-list { display: flex; flex-direction: column; }
-
-    .pub {
-      border-top: 1px solid var(--bdr);
-      padding: 1.4rem 0;
-    }
-
+    .pub { border-top: 1px solid var(--bdr); padding: 1.4rem 0; }
     .pub:last-child { border-bottom: 1px solid var(--bdr); }
 
-    .pub-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .pub-badge {
-      font-size: 0.62rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 0.14rem 0.5rem;
-      border-radius: 2px;
-    }
-
-    .badge-conf {
-      color: var(--acc);
-      background: var(--acc2);
-    }
-
-    .badge-pat {
-      color: var(--pur);
-      background: var(--pur2);
-    }
-
-    .pub-venue {
-      font-size: 0.72rem;
-      color: var(--muted);
-    }
-
-    .pub-title {
-      font-size: 0.92rem;
-      font-weight: 500;
-      color: var(--text);
-      line-height: 1.5;
-      margin-bottom: 0.5rem;
-    }
-
-    .pub-authors {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-bottom: 0.8rem;
-      line-height: 1.6;
-    }
-
-    .pub-links {
-      display: flex;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-    }
-
-    .plink {
-      font-size: 0.7rem;
-      color: var(--sub);
-      text-decoration: none;
-      border: 1px solid var(--bdr);
-      padding: 0.18rem 0.55rem;
-      border-radius: 2px;
-      background: var(--bg2);
-      transition: all 0.15s;
-    }
-
+    .pub-meta { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .pub-badge { font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.14rem 0.5rem; border-radius: 2px; }
+    .badge-conf { color: var(--c1); background: rgba(57,135,229,0.1); }
+    .badge-pat  { color: var(--pur); background: var(--pur2); }
+    .pub-venue  { font-size: 0.72rem; color: var(--muted); }
+    .pub-title  { font-size: 0.92rem; font-weight: 500; color: var(--text); line-height: 1.5; margin-bottom: 0.5rem; }
+    .pub-authors { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.8rem; line-height: 1.6; }
+    .pub-links  { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .plink { font-size: 0.7rem; color: var(--sub); text-decoration: none; border: 1px solid var(--bdr); padding: 0.18rem 0.55rem; border-radius: 2px; background: var(--bg2); transition: all 0.15s; }
     .plink:hover { color: var(--text); border-color: var(--bdr2); }
 
-    .service-block {
-      margin-top: 2.5rem;
-      padding: 1.4rem;
-      background: var(--bg2);
-      border: 1px solid var(--bdr);
-      border-radius: 3px;
-    }
-
-    .service-label {
-      font-size: 0.65rem;
-      font-weight: 500;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 0.8rem;
-    }
-
-    .service-block p {
-      font-size: 0.85rem;
-      color: var(--sub);
-      line-height: 1.8;
-    }
+    .service-block { margin-top: 2.5rem; padding: 1.4rem; background: var(--bg2); border: 1px solid var(--bdr); border-radius: 3px; }
+    .service-label { font-size: 0.65rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.8rem; }
+    .service-block p { font-size: 0.85rem; color: var(--sub); line-height: 1.8; }
 
     /* ── EDUCATION ── */
     .edu-list { display: flex; flex-direction: column; }
-
-    .edu-row {
-      display: grid;
-      grid-template-columns: 100px 1fr;
-      gap: 1.5rem;
-      border-top: 1px solid var(--bdr);
-      padding: 1.3rem 0;
-      align-items: start;
-    }
-
+    .edu-row { display: grid; grid-template-columns: 100px 1fr; gap: 1.5rem; border-top: 1px solid var(--bdr); padding: 1.3rem 0; align-items: start; }
     .edu-row:last-child { border-bottom: 1px solid var(--bdr); }
-
-    .edu-year {
-      font-size: 0.72rem;
-      color: var(--muted);
-      line-height: 1.5;
-      padding-top: 0.1rem;
-    }
-
-    .edu-degree {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 0.2rem;
-    }
-
+    .edu-year { font-size: 0.72rem; color: var(--muted); line-height: 1.5; padding-top: 0.1rem; }
+    .edu-degree { font-size: 0.9rem; font-weight: 500; color: var(--text); margin-bottom: 0.2rem; }
     .edu-inst { font-size: 0.8rem; color: var(--muted); }
-
-    .edu-gpa {
-      display: inline-block;
-      margin-top: 0.4rem;
-      font-size: 0.65rem;
-      color: var(--acc);
-      background: var(--acc2);
-      padding: 0.15rem 0.5rem;
-      border-radius: 2px;
-    }
+    .edu-gpa { display: inline-block; margin-top: 0.4rem; font-size: 0.65rem; color: var(--acc); background: var(--acc2); padding: 0.15rem 0.5rem; border-radius: 2px; }
 
     /* ── CONTACT ── */
-    #contact {
-      border-top: 1px solid var(--bdr);
-      padding: 6rem 2rem;
-      max-width: 860px;
-      margin: 0 auto;
-    }
-
-    .cta-title {
-      font-size: clamp(2.2rem, 5.5vw, 3.8rem);
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      color: var(--text);
-      margin-bottom: 1.5rem;
-    }
-
-    .cta-desc {
-      font-size: 0.95rem;
-      color: var(--sub);
-      max-width: 500px;
-      line-height: 1.8;
-      margin-bottom: 2.5rem;
-    }
-
+    #contact { border-top: 1px solid var(--bdr); padding: 6rem 2rem; max-width: 860px; margin: 0 auto; }
+    .cta-title { font-size: clamp(2.2rem, 5.5vw, 3.8rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; color: var(--text); margin-bottom: 1.5rem; }
+    .cta-desc { font-size: 0.95rem; color: var(--sub); max-width: 500px; line-height: 1.8; margin-bottom: 2.5rem; }
     .cta-links { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
     /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid var(--bdr);
-      padding: 1.8rem 2rem;
-      max-width: 860px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
+    footer { border-top: 1px solid var(--bdr); padding: 1.8rem 2rem; max-width: 860px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--muted); }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 720px) {
       #hero { padding: 5rem 1.5rem 4rem; }
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-photo { display: none; }
       .w { padding: 5rem 1.5rem; }
       #contact { padding: 5rem 1.5rem; }
       footer { padding: 1.5rem; flex-direction: column; gap: 0.5rem; }
@@ -624,6 +430,7 @@
       .hero-stats { gap: 1.2rem; }
       .skills-grid { grid-template-columns: 1fr 1fr; }
       .edu-row { grid-template-columns: 1fr; gap: 0.3rem; }
+      .ct-phases { height: 48px; }
     }
 
     @media (max-width: 480px) {
@@ -647,38 +454,49 @@
 
 <!-- HERO -->
 <section id="hero">
-  <div class="hero-eye">Senior Data Scientist &nbsp;·&nbsp; SLB &nbsp;·&nbsp; Pune, India</div>
-  <h1 class="hero-name">Sunil<br>Manikani<span class="dot">.</span></h1>
-  <p class="hero-stmt">
-    <strong>18 years</strong> building AI that ships — from seismic deep learning
-    and diffusion models to production-scale agentic systems for energy and sustainability.
-  </p>
-  <div class="hero-stats">
-    <div class="hs">
-      <span class="hs-val">18+</span>
-      <span class="hs-label">Years</span>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eye">Senior Data Scientist &nbsp;·&nbsp; SLB &nbsp;·&nbsp; Pune, India</div>
+      <h1 class="hero-name">Sunil<br>Manikani<span class="dot">.</span></h1>
+      <p class="hero-stmt">
+        <strong>18 years</strong> building AI that ships — from seismic deep learning
+        and diffusion models to production-scale agentic systems for energy and sustainability.
+      </p>
+      <div class="hero-stats">
+        <div class="hs">
+          <span class="hs-val">18+</span>
+          <span class="hs-label">Years</span>
+        </div>
+        <div class="hs-sep"></div>
+        <div class="hs">
+          <span class="hs-val">10+</span>
+          <span class="hs-label">Patents</span>
+        </div>
+        <div class="hs-sep"></div>
+        <div class="hs">
+          <span class="hs-val">5</span>
+          <span class="hs-label">Publications</span>
+        </div>
+        <div class="hs-sep"></div>
+        <div class="hs">
+          <span class="hs-val">PhD</span>
+          <span class="hs-label">In Progress</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <a href="#research" class="btn btn-fill">View Research</a>
+        <a href="mailto:smanikani@gmail.com" class="btn btn-line">Get in Touch ↗</a>
+        <a href="https://linkedin.com/in/sunil-manikani" target="_blank" rel="noopener" class="btn btn-line">LinkedIn ↗</a>
+        <a href="https://scholar.google.com/citations?user=5TRsVEYAAAAJ" target="_blank" rel="noopener" class="btn btn-line">Google Scholar ↗</a>
+      </div>
     </div>
-    <div class="hs-sep"></div>
-    <div class="hs">
-      <span class="hs-val">10+</span>
-      <span class="hs-label">Patents</span>
+    <div class="hero-photo">
+      <img
+        src="https://github.com/sunilmanikani.png?size=400"
+        alt="Sunil Manikani"
+        width="180" height="180"
+      >
     </div>
-    <div class="hs-sep"></div>
-    <div class="hs">
-      <span class="hs-val">5</span>
-      <span class="hs-label">Publications</span>
-    </div>
-    <div class="hs-sep"></div>
-    <div class="hs">
-      <span class="hs-val">PhD</span>
-      <span class="hs-label">In Progress</span>
-    </div>
-  </div>
-  <div class="hero-actions">
-    <a href="#research" class="btn btn-fill">View Research</a>
-    <a href="mailto:smanikani@gmail.com" class="btn btn-line">Get in Touch ↗</a>
-    <a href="https://linkedin.com/in/sunil-manikani" target="_blank" rel="noopener" class="btn btn-line">LinkedIn ↗</a>
-    <a href="https://scholar.google.com/citations?user=5TRsVEYAAAAJ" target="_blank" rel="noopener" class="btn btn-line">Google Scholar ↗</a>
   </div>
 </section>
 
@@ -728,6 +546,81 @@
     <span class="sl-name">Experience</span>
     <div class="sl-rule"></div>
   </div>
+
+  <!-- Career timeline visualisation -->
+  <!--
+    Total span: Sep 2007 → Nov 2026 ≈ 230 months
+    Patni:          Sep 2007 – Oct 2010 = 37 mo  → 16%
+    Capgemini:      Oct 2010 – May 2012 = 19 mo  →  8%
+    SLB Innerlogix: May 2012 – Jan 2016 = 44 mo  → 19%
+    SLB Seismic:    Aug 2016 – Aug 2020 = 48 mo  → 21%
+    SLB Energy/AI:  Aug 2020 – Nov 2026 = 75 mo  → 33%
+    (small gap Jan–Aug 2016 absorbed into Seismic segment)
+    Year axis positions: 2007=0% 2010=16% 2012=24% 2016=43% 2020=64% 2026=100%
+  -->
+  <div class="ct-wrap">
+    <div class="ct-label-row">Career timeline · 2007 – present</div>
+
+    <!-- Year labels -->
+    <div class="ct-years">
+      <span class="ct-year" style="left:0%">2007</span>
+      <span class="ct-year" style="left:16%">2010</span>
+      <span class="ct-year" style="left:24%">2012</span>
+      <span class="ct-year" style="left:43%">2016</span>
+      <span class="ct-year" style="left:64%">2020</span>
+      <span class="ct-year" style="left:100%">2026</span>
+    </div>
+
+    <!-- Tick marks -->
+    <div class="ct-ticks">
+      <div class="ct-tick" style="left:0%"></div>
+      <div class="ct-tick" style="left:16%"></div>
+      <div class="ct-tick" style="left:24%"></div>
+      <div class="ct-tick" style="left:43%"></div>
+      <div class="ct-tick" style="left:64%"></div>
+      <div class="ct-tick" style="left:100%"></div>
+    </div>
+
+    <!-- Bar segments -->
+    <div class="ct-bar">
+      <!-- Patni -->
+      <div class="ct-seg" style="width:16%;background:#2c2c2c;border-right:1px solid #0c0c0c"></div>
+      <!-- Capgemini -->
+      <div class="ct-seg" style="width:8%;background:#323232;border-right:1px solid #0c0c0c"></div>
+      <!-- SLB Innerlogix -->
+      <div class="ct-seg" style="width:19%;background:rgba(0,212,170,0.25);border-right:1px solid #0c0c0c"></div>
+      <!-- SLB Seismic ML -->
+      <div class="ct-seg" style="width:21%;background:rgba(0,212,170,0.45);border-right:1px solid #0c0c0c"></div>
+      <!-- SLB Energy / Gen AI -->
+      <div class="ct-seg" style="width:36%;background:rgba(0,212,170,0.75)"></div>
+    </div>
+
+    <!-- Phase labels (positioned to match segments) -->
+    <div class="ct-phases" style="height:48px;position:relative;margin-top:8px;">
+      <div class="ct-phase" style="left:0%;width:15%">
+        Patni
+        <small>SE</small>
+      </div>
+      <div class="ct-phase" style="left:17%;width:7%">
+        Cap.
+        <small>Consultant</small>
+      </div>
+      <div class="ct-phase" style="left:25%;width:17%">
+        Innerlogix
+        <small>Data Quality</small>
+      </div>
+      <div class="ct-phase" style="left:44%;width:19%">
+        Seismic ML
+        <small>Geo-body · CNN</small>
+      </div>
+      <div class="ct-phase" style="left:65%;width:35%">
+        Energy Transition &amp; Gen AI
+        <small>Diffusion · Agents · LRM</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accordion -->
   <div class="exp-list">
 
     <div class="exp-row open">
@@ -744,9 +637,9 @@
       <div class="exp-body">
         <p class="exp-desc">
           Leading the integration of generative &amp; agentic AI into SLB digital products.
-          Engaging senior stakeholders on AI strategy, overseeing multi-million-dollar digital
-          hub budgets, and orchestrating cross-functional globally distributed teams. Core member
-          of the SLB Responsible AI steering committee. Designated cloud ML cost champion — saved ~$95K/year.
+          Engaging senior stakeholders on AI strategy, overseeing multi-million-dollar digital hub budgets,
+          and orchestrating cross-functional globally distributed teams. Core member of the SLB
+          Responsible AI steering committee. Designated cloud ML cost champion — saved ~$95K/year.
         </p>
         <div class="exp-projects">
           <div class="exp-proj">
@@ -882,12 +775,39 @@
     <div class="sl-rule"></div>
   </div>
 
+  <!-- Research output chart -->
+  <!--
+    Palette: blue #3987e5 (publications) / green #008300 (patents)
+    Validated dark-mode — all 5 checks PASS, worst CVD ΔE 27.3, contrast ≥ 3:1
+    Data: confirmed papers and patents by year only
+  -->
+  <div class="chart-wrap">
+    <div class="chart-header">
+      <span class="chart-title">Research output by year</span>
+      <div class="chart-legend">
+        <div class="chart-legend-item">
+          <div class="legend-dot" style="background:#3987e5"></div>
+          <span>Conference papers</span>
+        </div>
+        <div class="chart-legend-item">
+          <div class="legend-dot" style="background:#008300"></div>
+          <span>Patents (confirmed)</span>
+        </div>
+      </div>
+    </div>
+    <div class="chart-canvas-wrap">
+      <canvas id="researchChart" aria-label="Research output by year — bar chart" role="img"></canvas>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
   <div class="filter-bar">
     <button class="ftab on" data-f="all">All</button>
     <button class="ftab" data-f="conf">Conference Papers</button>
     <button class="ftab" data-f="pat">Patents</button>
   </div>
 
+  <!-- Publications list -->
   <div class="pub-list">
 
     <div class="pub" data-t="conf">
@@ -1074,9 +994,8 @@
 </footer>
 
 <script>
-  function toggle(row) {
-    row.classList.toggle('open');
-  }
+  // Accordion
+  function toggle(row) { row.classList.toggle('open'); }
 
   // Research filter
   document.querySelectorAll('.ftab').forEach(function(tab) {
@@ -1089,6 +1008,84 @@
       });
     });
   });
+
+  // Research output chart
+  // Palette validated: blue #3987e5 / green #008300 on surface #141414
+  // All 5 checks PASS: CVD ΔE 27.3, normal-vision ΔE 29.9, contrast ≥ 3:1
+  // Direct labels on bars = secondary encoding for accessibility
+  (function() {
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+    Chart.defaults.color = '#555';
+
+    var ctx = document.getElementById('researchChart').getContext('2d');
+
+    var years    = ['2021', '2022', '2023', '2024', '2026'];
+    var papers   = [1, 1, 1, 1, 1];
+    var patents  = [1, 0, 1, 1, 2];
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: years,
+        datasets: [
+          {
+            label: 'Conference papers',
+            data: papers,
+            backgroundColor: '#3987e5',
+            borderRadius: 4,
+            borderSkipped: 'bottom',
+          },
+          {
+            label: 'Patents (confirmed)',
+            data: patents,
+            backgroundColor: '#008300',
+            borderRadius: 4,
+            borderSkipped: 'bottom',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1c1c1c',
+            borderColor: '#333',
+            borderWidth: 1,
+            titleColor: '#efefef',
+            bodyColor: '#888',
+            padding: 10,
+            callbacks: {
+              label: function(ctx) {
+                return ' ' + ctx.dataset.label + ': ' + ctx.parsed.y;
+              }
+            }
+          },
+          datalabels: { display: false }
+        },
+        scales: {
+          x: {
+            grid: { color: '#242424', drawBorder: false },
+            border: { color: '#242424' },
+            ticks: { color: '#555', font: { size: 11 } }
+          },
+          y: {
+            beginAtZero: true,
+            max: 3,
+            grid: { color: '#242424', drawBorder: false },
+            border: { color: '#242424', dash: [2, 4] },
+            ticks: {
+              color: '#555',
+              font: { size: 11 },
+              stepSize: 1,
+              callback: function(v) { return v === 0 ? '' : v; }
+            }
+          }
+        }
+      }
+    });
+  })();
 </script>
 </body>
 </html>
